@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroVision</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            background:#f2f2f2;
+            text-align:center;
+            margin-top:60px;
+        }
+
+        .container{
+            width:450px;
+            margin:auto;
+            background:white;
+            padding:30px;
+            border-radius:10px;
+            box-shadow:0 0 10px rgba(0,0,0,.2);
+        }
+
+        h1{
+            color:green;
+        }
+
+        button{
+            margin-top:20px;
+            padding:10px 20px;
+            border:none;
+            background:green;
+            color:white;
+            border-radius:5px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        button:hover{
+            background:darkgreen;
+        }
+
+        #result{
+            margin-top:30px;
+            font-size:20px;
+            font-weight:bold;
+        }
+
+        #loading{
+            color:blue;
+            margin-top:15px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🌱 AgroVision</h1>
+
+<input type="file" id="image" accept="image/*">
+
+<br>
+
+<button type="button" onclick="predict(event)">
+Predict Disease
+</button>
+
+<p id="loading"></p>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+async function predict(event){
+
+    if(event){
+        event.preventDefault();
+    }
+
+    const file=document.getElementById("image").files[0];
+
+    if(!file){
+
+        alert("Please choose an image.");
+
+        return;
+    }
+
+    document.getElementById("loading").innerHTML="Predicting...";
+    document.getElementById("result").innerHTML="";
+
+    const formData=new FormData();
+
+    formData.append("image",file);
+
+    try{
+
+        console.log("Sending request...");
+
+        const response=await fetch("http://127.0.0.1:5000/predict",{
+
+            method:"POST",
+
+            body:formData
+
+        });
+
+        console.log("Status :",response.status);
+
+        const data=await response.json();
+
+        console.log(data);
+
+        document.getElementById("loading").innerHTML="";
+
+        if(data.error){
+
+            document.getElementById("result").innerHTML=data.error;
+
+            return;
+
+        }
+
+        document.getElementById("result").innerHTML=
+
+        `
+        <p>Disease : <b>${data.class}</b></p>
+
+        <p>Confidence : <b>${data.confidence}%</b></p>
+        `;
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+        document.getElementById("loading").innerHTML="";
+
+        document.getElementById("result").innerHTML=
+
+        "❌ Failed to connect to backend.";
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+venv/
+venv copy/
+backend/__pycache__/
+backend/uploads/
+*.pyc
+.vscode/
+.ipynb_checkpoints/
+dataset/
